@@ -1,45 +1,14 @@
-# fly.toml app configuration file generated for vilatur on 2023-07-02T19:58:09-03:00
+# fly.toml app configuration file generated for vilatur on 2023-07-03T22:14:07-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = "vilatur"
-primary_region = "dfw"
-kill_signal = "SIGINT"
-kill_timeout = "5s"
+primary_region = "gru"
 
-[experimental]
-  cmd = ["start.sh"]
-  entrypoint = ["sh"]
-
-[env]
-  DATABASE_URL = "file:/data/sqlite.db"
-  NODE_ENV = "production"
-  PORT = "8080"
-
-[[mounts]]
-  source = "data"
-  destination = "/data"
-
-[[services]]
-  protocol = "tcp"
+[http_service]
   internal_port = 3000
-  processes = ["app"]
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-  [services.concurrency]
-    type = "connections"
-    hard_limit = 25
-    soft_limit = 20
-
-  [[services.tcp_checks]]
-    interval = "15s"
-    timeout = "2s"
-    grace_period = "1s"
-    restart_limit = 0
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0

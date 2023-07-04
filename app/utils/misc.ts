@@ -1,6 +1,12 @@
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from 'clsx'
 
 const DEFAULT_REDIRECT = '/'
+
+export function cn(...inputs: ClassValue[]) {
+	return twMerge(clsx(inputs))
+}
 
 /**
  * This should be used any time the redirect path is user-provided

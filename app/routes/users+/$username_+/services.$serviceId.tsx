@@ -1,57 +1,70 @@
-import { json, type DataFunctionArgs } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
-import { GeneralErrorBoundary } from '~/components/error-boundary'
-import { DeleteNote } from '~/routes/resources+/delete-note'
-import { getUserId } from '~/utils/auth.server'
-import { prisma } from '~/utils/db.server'
-import { ButtonLink } from '~/utils/forms'
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import {
+  Form,
+  isRouteErrorResponse,
+  useLoaderData,
+  useRouteError,
+} from "@remix-run/react";
+import invariant from "tiny-invariant";
 
-export async function loader({ request, params }: DataFunctionArgs) {
-	const userId = await getUserId(request)
-	const note = await prisma.note.findUnique({
-		where: {
-			id: params.noteId,
-		},
-		select: {
-			id: true,
-			title: true,
-			content: true,
-			ownerId: true,
-		},
-	})
-	if (!note) {
-		throw new Response('Not found', { status: 404 })
-	}
-	return json({ note, isOwner: userId === note.ownerId })
-}
+import { deleteNote, getNote } from "~/models/note.server";
+import { requireUserId } from "~/utils/session.server";
 
-export default function ServiceRoute() {
-	const data = useLoaderData<typeof loader>()
+export const loader = async ({ params, request }: LoaderArgs) => {
+  const userId = await requireUserId(request);
+  invariant(params.noteId, "noteId not found");
 
-	return (
-		<div className="flex h-full flex-col">
-			<div className="flex-grow">
-				<h2 className="mb-2 text-h2 lg:mb-6">{data.note.title}</h2>
-				<p className="text-sm md:text-lg">{data.note.content}</p>
-			</div>
-			{data.isOwner ? (
-				<div className="flex justify-end gap-4">
-					<DeleteNote id={data.note.id} />
-					<ButtonLink size="md" variant="primary" to="edit">
-						Edit
-					</ButtonLink>
-				</div>
-			) : null}
-		</div>
-	)
+  const note = await getNote({ id: params.noteId, userId });
+  if (!note) {
+    throw new Response("Not Found", { status: 404 });
+  }
+  return json({ note });
+};
+
+export const action = async ({ params, request }: ActionArgs) => {
+  const userId = await requireUserId(request);
+  invariant(params.noteId, "noteId not found");
+
+  await deleteNote({ id: params.noteId, userId });
+
+  return redirect("/services");
+};
+
+export default function ServiceDetailsPage() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <div>
+      <h3 className="text-2xl font-bold">{data.note.title}</h3>
+      <p className="py-6">{data.note.content}</p>
+      <hr className="my-4" />
+      <Form method="post">
+        <button
+          type="submit"
+          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+        >
+          Delete
+        </button>
+      </Form>
+    </div>
+  );
 }
 
 export function ErrorBoundary() {
-	return (
-		<GeneralErrorBoundary
-			statusHandlers={{
-				404: () => <p>Note not found</p>,
-			}}
-		/>
-	)
+  const error = useRouteError();
+
+  if (error instanceof Error) {
+    return <div>An unexpected error occurred: {error.message}</div>;
+  }
+
+  if (!isRouteErrorResponse(error)) {
+    return <h1>Unknown Error</h1>;
+  }
+
+  if (error.status === 404) {
+    return <div>Note not found</div>;
+  }
+
+  return <div>An unexpected error occurred: {error.statusText}</div>;
 }

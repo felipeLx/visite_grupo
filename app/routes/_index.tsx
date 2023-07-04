@@ -2,10 +2,13 @@ import { type V2_MetaFunction, type LoaderArgs, json } from "@remix-run/node";
 // import { Link } from "@remix-run/react";
 import { prisma } from '~/utils/db.server';
 import * as HoverCard from '@radix-ui/react-hover-card';
-import { useOptionalUser } from "~/utils";
+//import { useOptionalUser } from "~/utils";
 import { useLoaderData } from "@remix-run/react";
 import { getServiceImgSrc } from "~/utils/misc";
 import { Sidebar } from "~/components/sidebar";
+import { BsWhatsapp } from 'react-icons/bs'; 
+import { FaInternetExplorer } from 'react-icons/fa'; 
+import { SiGooglemaps } from 'react-icons/si'; 
 
 export const loader = async ({ request }: LoaderArgs) => {
   let notes = await prisma.note.findMany();
@@ -45,8 +48,8 @@ const comments: CommentData[] = [
 export default function Index() {
   
   return (
-    <main className="static flex bg-white sm:flex-col sm:flex sm:items-center sm:justify-center">
-      <div className="relative sm:pb-16 sm:pt-8">
+    <main>
+      <div className="flex flex-col sm:pb-16 sm:pt-8">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
             <div className="absolute inset-0">
@@ -91,7 +94,7 @@ export default function Index() {
                   </div>
                 )}
                 </div>*/}
-              {/*<a href="https://remix.run">
+              {/*<a target="_blank" rel="noopener noreferrer" href="https://remix.run">
                 <img
                   src="https://user-images.githubusercontent.com/1500684/158298926-e45dafff-3544-4b69-96d6-d3bcc33fc76a.svg"
                   alt="Remix"
@@ -105,11 +108,9 @@ export default function Index() {
           <nav className="flex rounded-lg justify-center items-center">
             <Sidebar />
           </nav>
-        <div className="flex ml-4 px-4 py-2 sm:px-6 lg:px-8">
-          <div className="mt-6 flex-wrap justify-center gap-8 space-x-4 sm:flex-col md:flex-col">
-            <HoverCardIndex />
-          </div>
-        </div>
+        <section>
+          <HoverCardIndex />
+        </section>
       </div>
     </main>
   );
@@ -121,22 +122,22 @@ function HoverCardIndex() {
   let keywords = data.keywords;
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center text-center lg:flex-row md:flex-col sm:flex-col">
+    <div className="flex flex-wrap gap-4 px-2 ml-2 justify-between lg:flex-row md:flex-col sm:flex-col">
         {services.map((service: any) => (
-          <div key={service.id} className="">
+          <div key={service.id} className=" w-96 mt-6 justify-around items-center">
             <HoverCard.Root>
               <HoverCard.Trigger asChild>
                 <div
                   className="flex justify-center items-center cursor-pointer rounded-sm shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] outline-none focus:shadow-[0_0_0_2px_white]"
                 >
                   <img
-                    className="block h-[150px] w-[150px] rounded-sm"
+                    className="block h-[150px] w-[150px] rounded-sm  object-cover"
                     src={getServiceImgSrc(service.imageId)}
                     alt={service.title}
                   />
                   <div className="flex-row">
-                    <h3 className="font-bold">{service.title}</h3>
-                    <p className="font-light">{keywords.filter(w => w.serviceId === service.id).map(word => word.words + ", ")}</p>
+                    <h3 className="font-bold pl-2">{service.title}</h3>
+                    <p className="p-2 flex flex-wrap font-light">{keywords.filter(w => w.serviceId === service.id).map(word => word.words + ", ")}</p>
                   </div>
                 </div>
               </HoverCard.Trigger>
@@ -147,13 +148,13 @@ function HoverCardIndex() {
                 >
                   <div className="flex flex-col gap-[7px]">
                     <img
-                      className="block h-[60px] w-[60px] rounded-full"
+                      className="block h-[60px] w-[60px] rounded-full object-cover"
                       src={getServiceImgSrc(service.imageId)}
                       alt={service.title}
                     />
                     <div className="flex flex-col gap-[15px]">
                       <div>
-                        <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.title}</div>
+                        <div className="text-mauve12 m-0 text-[15px] font-bold text-lg leading-[1.5]">{service.title}</div>
                         <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">{service.content}</div>
                       </div>
                       <div className="text-mauve12 m-0 text-[15px] leading-[1.5]">
@@ -161,22 +162,32 @@ function HoverCardIndex() {
                       </div>
                       <div className="flex gap-[15px]">
                         <div className="flex gap-[5px]">
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.phone}</div>{' '}
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Tel.:</div>
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fale comigo:</div>
+                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://wa.me/${service.phone}`}><BsWhatsapp /></a></div>{' '}
                         </div>
                         <div className="flex gap-[5px]">
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.delivery}</div>{' '}
                           <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Faz Entrega</div>
+                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.delivery}</div>{' '}
                         </div>
                       </div>
                       <div className="flex gap-[15px]">
                         <div className="flex gap-[5px]">
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Abre às:</div>
                           <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.open}</div>{' '}
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Aberto às:</div>
                         </div>
                         <div className="flex gap-[5px]">
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fecha às:</div>
                           <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.close}</div>{' '}
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fechado às:</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-[15px]">
+                        <div className="flex gap-[5px]">
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Site:</div>
+                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`${service.site}`}><FaInternetExplorer /></a></div>{' '}
+                        </div>
+                        <div className="flex gap-[5px]">
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Estou aqui:</div>
+                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${service.latitud}%2C${service.longitud}`}><SiGooglemaps /></a></div>{' '}
                         </div>
                       </div>
                     </div>

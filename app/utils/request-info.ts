@@ -8,5 +8,5 @@ import { type loader as rootLoader } from '~/root'
 export function useRequestInfo() {
 	const data = useRouteLoaderData('root') as SerializeFrom<typeof rootLoader>
 	console.log('info from the root loader', data)
-	return data.requestInfo
+	return data?.requestInfo
 }

@@ -36,7 +36,7 @@ export const links: LinksFunction = () => {
 		{ rel: 'preload', href: fontStylestylesheetUrl, as: 'style' },
 		{ rel: 'preload', href: tailwindStylesheetUrl, as: 'style' },
 		
-		{ rel: 'mask-icon', href: '/favicons/mask-icon.svg' },
+		{ rel: 'mask-icon', href: '/favicon.ico' },
 		{
 			rel: 'alternate icon',
 			type: 'image/png',
@@ -44,7 +44,7 @@ export const links: LinksFunction = () => {
 		},
 		{ rel: 'apple-touch-icon', href: '/favicons/apple-touch-icon.png' },
 		{ rel: 'manifest', href: '/site.webmanifest' },
-		{ rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
+		{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.ico' },
 		{
 			rel: 'icon',
 			type: 'image/svg+xml',
@@ -125,9 +125,9 @@ export default function App() {
             </script>
           </>
         )}
-        <header className="container mx-auto">
+        <header>
 			<nav className="flex justify-between ">
-				<div className="flex w-full items-center gap-10 bg-indigo-950">
+				<div className="flex w-full items-center p-4 bg-indigo-950">
 					{user ? (
 						<UserDropdown />
 					) : (
@@ -175,7 +175,7 @@ function UserDropdown() {
 				<DropdownMenu.Content
 					sideOffset={8}
 					align="start"
-					className="flex flex-col rounded-3xl bg-[#323232]"
+					className="flex flex-col rounded-3xl bg-indigo-950 text-white"
 				>
 					<DropdownMenu.Item asChild>
 						<Link

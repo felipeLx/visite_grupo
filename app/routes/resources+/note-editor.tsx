@@ -72,7 +72,7 @@ export async function action({ request }: DataFunctionArgs) {
 	} else {
 		note = await prisma.note.create({ data, select })
 	}
-	return redirect(`/users/${note.owner.username}/notes/${note.id}`)
+	return redirect(`/users/${note.owner.username}/services/${note.id}`)
 }
 
 export function NoteEditor({

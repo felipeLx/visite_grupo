@@ -1,8 +1,8 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { NoteEditor } from '~/routes/resources+/note-editor'
-import { requireUserId } from '~/utils/auth.server'
-import { prisma } from '~/utils/db.server'
+import { NoteEditor } from '~/routes/resources+/note-editor.tsx'
+import { requireUserId } from '~/utils/auth.server.ts'
+import { prisma } from '~/utils/db.server.ts'
 
 export async function loader({ params, request }: DataFunctionArgs) {
 	const userId = await requireUserId(request)
@@ -18,7 +18,7 @@ export async function loader({ params, request }: DataFunctionArgs) {
 	return json({ note: note })
 }
 
-export default function ServiceEdit() {
+export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 
 	return <NoteEditor note={data.note} />

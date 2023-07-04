@@ -48,7 +48,7 @@ export async function action({ request }: DataFunctionArgs) {
 		where: { id: note.id },
 	})
 
-	return redirect(`/users/${note.owner.username}/notes`)
+	return redirect(`/users/${note.owner.username}/services`)
 }
 
 export function DeleteNote({ id }: { id: string }) {

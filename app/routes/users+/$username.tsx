@@ -36,7 +36,7 @@ export default function UsernameIndex() {
 	const userDisplayName = user.name ?? user.username
 	const loggedInUser = useOptionalUser()
 	const isLoggedInUser = data.user.id === loggedInUser?.id
-
+	console.log('isLoggedInUser', isLoggedInUser)
 	return (
 		<div className="container mx-auto mb-48 mt-36 flex flex-col items-center justify-center">
 			<Spacer size="4xs" />
@@ -56,17 +56,17 @@ export default function UsernameIndex() {
 
 				<Spacer size="sm" />
 
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center text-white">
 					<div className="flex flex-wrap items-center justify-center gap-4">
-						<h1 className="text-center text-h2">{userDisplayName}</h1>
+						<h1 className="text-center text-h2 text-white">{userDisplayName}</h1>
 					</div>
-					<p className="mt-2 text-center text-night-200">
-						Joined {data.userJoinedDisplay}
+					<p className="mt-2 text-center text-white">
+						Participe {data.userJoinedDisplay}
 					</p>
 					{isLoggedInUser ? (
 						<Form action="/logout" method="POST" className="mt-3">
 							<Button type="submit" variant="secondary" size="pill">
-								Logout
+								Sair
 							</Button>
 						</Form>
 					) : null}
@@ -74,12 +74,12 @@ export default function UsernameIndex() {
 						{isLoggedInUser ? (
 							<>
 								<ButtonLink
-									to="notes"
+									to="services"
 									variant="primary"
 									size="md"
 									prefetch="intent"
 								>
-									My notes
+									Meus Serviços
 								</ButtonLink>
 								<ButtonLink
 									to="/settings/profile"
@@ -87,17 +87,17 @@ export default function UsernameIndex() {
 									size="md"
 									prefetch="intent"
 								>
-									Edit profile
+									Editar Perfil
 								</ButtonLink>
 							</>
 						) : (
 							<ButtonLink
-								to="notes"
+								to="services"
 								variant="primary"
 								size="md"
 								prefetch="intent"
 							>
-								{userDisplayName}'s notes
+								{userDisplayName} serviços/produtos
 							</ButtonLink>
 						)}
 					</div>

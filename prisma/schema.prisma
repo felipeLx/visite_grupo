@@ -118,8 +118,8 @@ model Note {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  latitud Float?
-  longitud Float?
+  latitud String?
+  longitud String?
   open String?
   close String?
   delivery Boolean?

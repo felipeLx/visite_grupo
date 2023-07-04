@@ -52,12 +52,12 @@ async function seed() {
 						title: 'Ale & Thalita Pizza',
 						content:
 						'Pizzaria e lanchonete com variadede de lanches para você e sua família.',
-						latitud: -22.9301906,
-						longitud: -42.4119475,
+						latitud: "-22.9301906",
+						longitud: "-42.4119475",
 						open: "18:00",
 						close: "0:30",
 						delivery: true,
-						phone: "5522998856358",
+						phone: "22998856358",
 						image: {
 							create: {
 								contentType: 'image/jpeg',
@@ -112,12 +112,12 @@ async function seed() {
 						title: 'Estela Roupas',
 						content:
 						'Peças de roupas únicas com o melhor preço da região.',
-						latitud: -22.9301906,
-						longitud: -42.4119475,
+						latitud: "-22.9301906",
+						longitud: "-42.4119475",
 						open: "9:00",
 						close: "20:30",
 						delivery: true,
-						phone: "https://wa.me/5521999318689",
+						phone: "21999318689",
 						image: {
 							create: {
 								contentType: 'image/jpeg',
@@ -171,12 +171,12 @@ async function seed() {
 						title: 'Delícias da Vila',
 						content:
 						'Salgados especiais e recheados, pratos cazeiros e típicos da região, múltiplas opções para todos.',
-						latitud: -22.9301906,
-						longitud: -42.4119475,
+						latitud: "-22.9301906",
+						longitud: "-42.4119475",
 						open: "9:00",
 						close: "18:00",
 						delivery: true,
-						phone: "https://wa.me/5522997997690",
+						phone: "22997997690",
             			image: {
 							create: {
 								contentType: 'image/jpeg',
@@ -230,12 +230,12 @@ async function seed() {
 						title: 'Rancho das Cigarras',
 						content:
 						'Ambiente familiar com comida típica mineira e muitas atrações para as crianças.',
-						latitud: -22.8988856,
-						longitud: -42.4406357,
+						latitud: "-22.8988856",
+						longitud: "-42.4406357",
 						open: "9:00",
 						close: "20:00",
 						delivery: true,
-						phone: "https://wa.me/5522998872392",
+						phone: "22998872392",
             			image: {
 							create: {
 								contentType: 'image/jpeg',
