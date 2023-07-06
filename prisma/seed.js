@@ -8,6 +8,7 @@ const client_1 = require("@prisma/client");
 
 const db = new client_1.PrismaClient();
 
+
 async function seed() {
 	console.log('🌱 Seeding...')
 	console.time(`🌱 Database has been seeded`)
@@ -31,7 +32,6 @@ async function seed() {
 			email: 'ale@pizza.com',
 			username: 'alepizza',
 			name: 'Ale Pizza',
-			roles: { connect: { id: adminRole.id } },
 			image: {
 				create: {
 					contentType: 'image/jpeg',
@@ -59,7 +59,7 @@ async function seed() {
 						longitud: "-42.4119475",
 						open: "18:00",
 						close: "0:30",
-						delivery: true,
+						delivery: "Sim",
 						phone: "22998856358",
 						image: {
 							create: {
@@ -91,7 +91,6 @@ async function seed() {
 			email: 'estela@email.com',
 			username: 'estela',
 			name: 'Estela Santos',
-			roles: { connect: { id: adminRole.id } },
 			image: {
 				create: {
 					contentType: 'image/jpeg',
@@ -119,7 +118,7 @@ async function seed() {
 						longitud: "-42.4119475",
 						open: "9:00",
 						close: "20:30",
-						delivery: true,
+						delivery: "Sim",
 						phone: "21999318689",
 						image: {
 							create: {
@@ -150,7 +149,6 @@ async function seed() {
 			email: 'delicias@vila.com',
 			username: 'delicias',
 			name: 'Delicias Vila',
-			roles: { connect: { id: adminRole.id } },
 			image: {
 				create: {
 					contentType: 'image/jpeg',
@@ -178,7 +176,7 @@ async function seed() {
 						longitud: "-42.4119475",
 						open: "9:00",
 						close: "18:00",
-						delivery: true,
+						delivery: "Sim",
 						phone: "22997997690",
             			image: {
 							create: {
@@ -209,7 +207,6 @@ async function seed() {
 			email: 'rancho@cigarras.com',
 			username: 'rancho',
 			name: 'Rancho Cigarras',
-			roles: { connect: { id: adminRole.id } },
 			image: {
 				create: {
 					contentType: 'image/jpeg',
@@ -237,7 +234,7 @@ async function seed() {
 						longitud: "-42.4406357",
 						open: "9:00",
 						close: "20:00",
-						delivery: true,
+						delivery: "Sim",
 						phone: "22998872392",
             			image: {
 							create: {

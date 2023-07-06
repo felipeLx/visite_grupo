@@ -36,7 +36,7 @@ export default function UsernameIndex() {
 	const userDisplayName = user.name ?? user.username
 	const loggedInUser = useOptionalUser()
 	const isLoggedInUser = data.user.id === loggedInUser?.id
-	console.log('isLoggedInUser', isLoggedInUser)
+	
 	return (
 		<div className="container mx-auto mb-48 mt-36 flex flex-col items-center justify-center">
 			<Spacer size="4xs" />

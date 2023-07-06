@@ -6,7 +6,7 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 
 const sidebarData = [
     {
-        title: 'ônibus',
+        title: 'Ônibus',
         path: 'https://www.saquarema.rj.gov.br/wp-content/uploads/2023/05/Alteracao-onibus-copiar.jpg?x32470',
         icon: <FaIcons.FaBusAlt />
     },
@@ -29,7 +29,7 @@ const sidebarData = [
 
 export function Sidebar() {
     return(
-        <ul className='flex flex-wrap w-3/4 space-x-4 items-center justify-center'>
+        <ul className='flex flex-wrap w-3/4 space-x-4 items-center justify-center md:justify-center sm:justify-between'>
         {sidebarData.map(item => (
             <div key={item.title} className='list-none flex items-center justify-start w-100 p-2'>
             <Dialog.Root>

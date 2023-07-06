@@ -1,6 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-
-import { Sidebar } from "./components/sidebar";
+//import { Sidebar } from "./components/sidebar";
 import {
 	Links,
 	LiveReload,
@@ -35,7 +34,7 @@ export const links: LinksFunction = () => {
 		// Preload CSS as a resource to avoid render blocking
 		{ rel: 'preload', href: fontStylestylesheetUrl, as: 'style' },
 		{ rel: 'preload', href: tailwindStylesheetUrl, as: 'style' },
-		
+		cssBundleHref ? { rel: 'preload', href: cssBundleHref, as: 'style' } : null,
 		{ rel: 'mask-icon', href: '/favicon.ico' },
 		{
 			rel: 'alternate icon',
@@ -52,7 +51,8 @@ export const links: LinksFunction = () => {
 			media: '(prefers-color-scheme: dark)',
 		},
 		{ rel: 'stylesheet', href: fontStylestylesheetUrl },
-		{ rel: 'stylesheet', href: tailwindStylesheetUrl }
+		{ rel: 'stylesheet', href: tailwindStylesheetUrl },
+		cssBundleHref ? { rel: 'stylesheet', href: cssBundleHref } : null,
 	].filter(Boolean)
 }
 

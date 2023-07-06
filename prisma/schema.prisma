@@ -122,7 +122,7 @@ model Note {
   longitud String?
   open String?
   close String?
-  delivery Boolean?
+  delivery String?
   phone String?
   site String?
   

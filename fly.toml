@@ -1,14 +1,41 @@
-# fly.toml app configuration file generated for vilatur on 2023-07-03T22:14:07-03:00
+# fly.toml app configuration file generated for vilatur on 2023-07-06T19:23:36-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = "vilatur"
 primary_region = "gru"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = [ ]
 
-[http_service]
-  internal_port = 3000
+[experimental]
+allowed_public_ports = [ ]
+auto_rollback = true
+
+[mounts]
+source = "data"
+destination = "/data"
+
+[deploy]
+release_command = "node ./other/sentry-create-release"
+
+[[services]]
+internal_port = 8080
+processes = [ "app" ]
+protocol = "tcp"
+script_checks = [ ]
+
+  [services.concurrency]
+  hard_limit = 100
+  soft_limit = 80
+  type = "connections"
+
+  [[services.ports]]
+  handlers = [ "http" ]
+  port = 80
   force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 0
+
+  [[services.ports]]
+  handlers = [ "tls", "http" ]
+  port = 443

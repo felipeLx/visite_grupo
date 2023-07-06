@@ -25,11 +25,12 @@ import {
 	DialogTitle,
 } from '~/components/ui/dialog'
 import * as deleteImageRoute from '~/routes/resources+/delete-image'
-import { authenticator, requireUserId } from '~/utils/auth.server'
+//import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { ErrorList } from '~/components/forms'
 import { getUserImgSrc } from '~/utils/misc'
 import { Icon } from '~/components/ui/icon'
+import { getUserId } from '~/utils/session.server'
 
 const MAX_SIZE = 1024 * 1024 * 3 // 3MB
 
@@ -43,27 +44,27 @@ const PhotoFormSchema = z.object({
 		value => (value === '' ? new File([], '') : value),
 		z
 			.instanceof(File)
-			.refine(file => file.name !== '' && file.size !== 0, 'Image is required')
+			.refine(file => file.name !== '' && file.size !== 0, 'Precisa de uma imagem')
 			.refine(file => {
 				return file.size <= MAX_SIZE
-			}, 'Image size must be less than 3MB'),
+			}, 'Imagem tem que ser menor que 3MB'),
 	),
 })
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await getUserId(request)
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
 		select: { imageId: true, name: true, username: true },
 	})
 	if (!user) {
-		throw await authenticator.logout(request, { redirectTo: '/' })
+		return redirect("/")
 	}
 	return json({ user })
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await getUserId(request)
 	const formData = await unstable_parseMultipartFormData(
 		request,
 		unstable_createMemoryUploadHandler({ maxPartSize: MAX_SIZE }),
@@ -150,7 +151,7 @@ export default function PhotoChooserModal() {
 				className="fixed left-1/2 top-1/2 w-[90vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 transform rounded-lg border-2 bg-background p-12 shadow-lg"
 			>
 				<DialogTitle asChild className="text-center">
-					<h2 className="text-h2">Profile photo</h2>
+					<h2 className="text-h2">Foto de Perfil</h2>
 				</DialogTitle>
 				<Form
 					method="POST"
@@ -184,16 +185,16 @@ export default function PhotoChooserModal() {
 					/>
 					{newImageSrc ? (
 						<div className="flex gap-4">
-							<Button type="submit">Save Photo</Button>
+							<Button type="submit">Salvar Foto</Button>
 							<Button type="reset">
-								Reset
+								Reiniciar
 							</Button>
 						</div>
 					) : (
 						<div className="flex gap-4">
 							<Button asChild className="cursor-pointer">
 								<label htmlFor={photoFile.id} className="flex gap-1">
-									<Icon name="pencil-1" /> Change
+									<Icon name="pencil-1" /> Mudar
 								</label>
 							</Button>
 							{data.user.imageId ? (
@@ -202,7 +203,7 @@ export default function PhotoChooserModal() {
 									form={deleteProfilePhotoFormId}
 									className="flex gap-1"
 								>
-									<Icon name="trash" /> Delete
+									<Icon name="trash" /> Apagar
 								</Button>
 							) : null}
 						</div>

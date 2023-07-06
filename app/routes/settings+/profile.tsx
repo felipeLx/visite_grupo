@@ -12,9 +12,7 @@ import {
 } from '@remix-run/react'
 import { z } from 'zod'
 import {
-	authenticator,
 	getPasswordHash,
-	requireUserId,
 	verifyLogin,
 } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
@@ -29,6 +27,7 @@ import {
 import { StatusButton } from '~/components/ui/status-button'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
+import { getUserId } from '~/utils/session.server'
 
 const profileFormSchema = z.object({
 	name: nameSchema.optional(),
@@ -41,9 +40,7 @@ const profileFormSchema = z.object({
 })
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
-	console.log('request userid', request)
-	console.log('userid', userId)
+	const userId = await getUserId(request)
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
 		select: {
@@ -54,15 +51,16 @@ export async function loader({ request }: DataFunctionArgs) {
 			imageId: true,
 		},
 	})
-	
+	 
 	if (!user) {
-		throw await authenticator.logout(request, { redirectTo: '/' })
-	}
+		return redirect("/")
+	} 
 	return json({ user })
+	
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await getUserId(request)
 	const formData = await request.formData()
 	const submission = await parse(formData, {
 		async: true,
@@ -103,14 +101,11 @@ export async function action({ request }: DataFunctionArgs) {
 	}
 	const { name, username, email, newPassword } = submission.value
 
-	if (email) {
-		// TODO: send a confirmation email
-	}
-
 	const updatedUser = await prisma.user.update({
 		select: { id: true, username: true },
 		where: { id: userId },
 		data: {
+			email,
 			name,
 			username,
 			password: newPassword
@@ -145,9 +140,9 @@ export default function EditUserProfile() {
 			return parse(formData, { schema: profileFormSchema })
 		},
 		defaultValue: {
-			username: data.user.username,
-			name: data.user.name ?? '',
-			email: data.user.email,
+			username: data?.user?.username,
+			name: data?.user?.name ?? '',
+			email: data?.user?.email,
 		},
 		shouldRevalidate: 'onBlur',
 	})
@@ -157,7 +152,7 @@ export default function EditUserProfile() {
 			<div className="flex gap-3">
 				<Link
 					className="text-muted-foreground"
-					to={`/users/${data.user.username}`}
+					to={`/users/${data?.user?.username}`}
 				>
 					Perfil
 				</Link>
@@ -168,8 +163,8 @@ export default function EditUserProfile() {
 				<div className="flex justify-center">
 					<div className="relative h-52 w-52">
 						<img
-							src={getUserImgSrc(data.user.imageId)}
-							alt={data.user.username}
+							src={getUserImgSrc(data?.user?.imageId)}
+							alt={data?.user?.username}
 							className="h-full w-full rounded-full object-cover"
 						/>
 						<Button
@@ -254,9 +249,10 @@ export default function EditUserProfile() {
 					<div className="mt-8 flex justify-center">
 						<StatusButton
 							type="submit"
+							className='bg-indigo-950 text-white border-2 hover:border-yellow-500 active:border-green-500'
 							status={isSubmitting ? 'pending' : actionData?.status ?? 'idle'}
 						>
-							Save changes
+							Salvar Mudanças
 						</StatusButton>
 					</div>
 				</Form>

@@ -18,6 +18,6 @@ export const nameSchema = z
 	.max(30, { message: 'Name is too long' })
 export const emailSchema = z
 	.string()
-	.email({ message: 'Email is invalid' })
+	.email({ message: 'Email inválido' })
 	.min(3, { message: 'Email is too short' })
 	.max(50, { message: 'Email is too long' })

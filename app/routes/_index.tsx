@@ -25,28 +25,8 @@ export const meta: V2_MetaFunction = () => {
       "Vilatur, bairro de Saquarema. Site com as propostas de serviços, produtos e eventos de Vilatur, Saquarema, Rio de Janeiro.",
   }];
 };
-/* 
-type CommentData = {
-  text: string;
-  name: string;
-  job: string;
-}
 
-const comments: CommentData[] = [
-  {
-    text: "Agradeço a atenção durante todo o processo!",
-    name: "João Dias",
-    job: "Estágio de Engenharia",
-  },
-  {
-    text: "Eles me ligaram e já marcaram a data de início, obrigado pelo processo rápido!",
-    name: "Mariana Almeida",
-    job: "Representante de Venda",
-  }
-]
- */
-export default function Index() {
-  
+export default function Index() {  
   return (
     <main>
       <div className="flex flex-col sm:pb-16 sm:pt-8">
@@ -69,38 +49,6 @@ export default function Index() {
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-black sm:max-w-3xl">
                 As diversas opções de serviços e produtos de Vilatur.
               </p>
-              {/*<div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
-                {user ? (
-                  <Link
-                    to="/services"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                  >
-                    Veja os serviços para {user.email}
-                  </Link>
-                ) : (
-                  <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
-                    <Link
-                      to="/join"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                    >
-                      Sair
-                    </Link>
-                    <Link
-                      to="/login"
-                      className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-3 font-medium text-white hover:bg-yellow-600"
-                    >
-                      Entrar
-                    </Link>
-                  </div>
-                )}
-                </div>*/}
-              {/*<a target="_blank" rel="noopener noreferrer" href="https://remix.run">
-                <img
-                  src="https://user-images.githubusercontent.com/1500684/158298926-e45dafff-3544-4b69-96d6-d3bcc33fc76a.svg"
-                  alt="Remix"
-                  className="mx-auto mt-16 w-full max-w-[12rem] md:max-w-[16rem]"
-                />
-              </a>*/}
             </div>
           </div>
         </div>
@@ -120,85 +68,98 @@ function HoverCardIndex() {
   const data = useLoaderData<typeof loader>();
   let services = data.notes;
   let keywords = data.keywords;
-
+  let transformedKeywords = keywords.flatMap((word: any) => {
+    if (word.words.includes(",")) {
+      return word.words.split(",").map((keyword: any) => ({
+        serviceId: word.serviceId,
+        words: keyword.trim()
+      }));
+    } else {
+      return {
+        serviceId: word.serviceId,
+        words: word.words.trim()
+      };
+    }
+  }); //.map((word: any) => word.words.includes(","))
   return (
-    <div className="flex flex-wrap gap-4 px-2 ml-2 justify-between lg:flex-row md:flex-col sm:flex-col">
-        {services.map((service: any) => (
-          <div key={service.id} className=" w-96 mt-6 justify-around items-center">
-            <HoverCard.Root>
-              <HoverCard.Trigger asChild>
-                <div
-                  className="flex justify-center items-center cursor-pointer rounded-sm shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] outline-none focus:shadow-[0_0_0_2px_white]"
-                >
-                  <img
-                    className="block h-[150px] w-[150px] rounded-sm  object-cover"
-                    src={getServiceImgSrc(service.imageId)}
-                    alt={service.title}
-                  />
-                  <div className="flex-row">
-                    <h3 className="font-bold pl-2">{service.title}</h3>
-                    <p className="p-2 flex flex-wrap font-light">{keywords.filter(w => w.serviceId === service.id).map(word => word.words + ", ")}</p>
-                  </div>
-                </div>
-              </HoverCard.Trigger>
-              <HoverCard.Portal>
-                <HoverCard.Content
-                  className="data-[side=bottom]:animate-slideUpAndFade data-[side=right]:animate-slideLeftAndFade data-[side=left]:animate-slideRightAndFade data-[side=top]:animate-slideDownAndFade w-[300px] rounded-md bg-white p-5 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] data-[state=open]:transition-all"
-                  sideOffset={5}
-                >
-                  <div className="flex flex-col gap-[7px]">
+    <div>
+      <div className="flex flex-wrap gap-4 p-4 m-2 justify-between">
+          {services.map((service: any) => (
+            <div key={service.id} className="flex">
+              <HoverCard.Root>
+                <HoverCard.Trigger asChild>
+                  <div
+                    className="flex w-96 justify-center items-center cursor-pointer rounded-sm shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] outline-none focus:shadow-[0_0_0_2px_white]"
+                  >
                     <img
-                      className="block h-[60px] w-[60px] rounded-full object-cover"
+                      className="block h-[150px] w-[150px] rounded-sm  object-cover"
                       src={getServiceImgSrc(service.imageId)}
                       alt={service.title}
                     />
-                    <div className="flex flex-col gap-[15px]">
-                      <div>
-                        <div className="text-mauve12 m-0 text-[15px] font-bold text-lg leading-[1.5]">{service.title}</div>
-                        <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">{service.content}</div>
-                      </div>
-                      <div className="text-mauve12 m-0 text-[15px] leading-[1.5]">
-                      {service.keywords}
-                      </div>
-                      <div className="flex gap-[15px]">
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fale comigo:</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://wa.me/${service.phone}`}><BsWhatsapp /></a></div>{' '}
+                    <div className="flex flex-col px-2">
+                      <h3 className="font-bold pl-2">{service.title}</h3>
+                      <p className="p-2 font-light flex">{transformedKeywords.filter(w => w.serviceId === service.id).map(word => word.words + ", ")}</p>
+                    </div>
+                  </div>
+                </HoverCard.Trigger>
+                <HoverCard.Portal>
+                  <HoverCard.Content
+                    className="data-[side=bottom]:animate-slideUpAndFade data-[side=right]:animate-slideLeftAndFade data-[side=left]:animate-slideRightAndFade data-[side=top]:animate-slideDownAndFade w-[300px] rounded-md bg-white p-5 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] data-[state=open]:transition-all"
+                    sideOffset={5}
+                  >
+                    <div className="flex flex-col gap-[7px]">
+                      <img
+                        className="block h-[60px] w-[60px] rounded-full object-cover"
+                        src={getServiceImgSrc(service.imageId)}
+                        alt={service.title}
+                      />
+                      <div className="flex flex-col gap-[15px]">
+                        <div>
+                          <div className="text-mauve12 m-0 text-[15px] font-bold text-lg leading-[1.5]">{service.title}</div>
+                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">{service.content}</div>
                         </div>
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Faz Entrega</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.delivery}</div>{' '}
+                        <div className="text-mauve12 m-0 text-[15px] leading-[1.5]">
+                        {service.keywords}
                         </div>
-                      </div>
-                      <div className="flex gap-[15px]">
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Abre às:</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.open}</div>{' '}
+                        <div className="flex gap-[15px] justify-between items-center">
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fale comigo:</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://wa.me/55${service.phone}`}><BsWhatsapp /></a></div>{' '}
+                          </div>
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Faz Entrega</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.delivery}</div>{' '}
+                          </div>
                         </div>
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fecha às:</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.close}</div>{' '}
+                        <div className="flex gap-[15px] justify-between items-center">
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Abre às:</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.open}</div>{' '}
+                          </div>
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Fecha às:</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]">{service.close}</div>{' '}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-[15px]">
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Site:</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`${service.site}`}><FaInternetExplorer /></a></div>{' '}
-                        </div>
-                        <div className="flex gap-[5px]">
-                          <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Estou aqui:</div>
-                          <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${service.latitud}%2C${service.longitud}`}><SiGooglemaps /></a></div>{' '}
+                        <div className="flex gap-[15px] justify-between items-center">
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Site:</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`${service.site}`}><FaInternetExplorer /></a></div>{' '}
+                          </div>
+                          <div className="flex gap-[5px]">
+                            <div className="text-mauve10 m-0 text-[15px] leading-[1.5]">Estou aqui:</div>
+                            <div className="text-mauve12 m-0 text-[15px] font-medium leading-[1.5]"><a target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${service.latitud}%2C${service.longitud}`}><SiGooglemaps /></a></div>{' '}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-      
-                  <HoverCard.Arrow className="fill-white" />
-                </HoverCard.Content>
-              </HoverCard.Portal>
-            </HoverCard.Root>
-          </div>
-        ))}
+                    <HoverCard.Arrow className="fill-white" />
+                  </HoverCard.Content>
+                </HoverCard.Portal>
+              </HoverCard.Root>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

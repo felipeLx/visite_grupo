@@ -7,7 +7,6 @@ import { requireUserId } from "~/utils/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  console.log('notes inside user', request)
   const userId = await requireUserId(request);
   const noteListItems = await getNoteListItems({ ownerId: userId });
   return json({ noteListItems });
