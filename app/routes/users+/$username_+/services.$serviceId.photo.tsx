@@ -16,7 +16,7 @@ import {
 } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/utils/forms'
 import {
 	Dialog,
 	DialogClose,
@@ -135,7 +135,7 @@ export async function action({ params, request }: DataFunctionArgs) {
 			.catch(() => {}) // ignore the error, maybe it never existed?
 	}
 
-	return redirect(`/users/${owner.username}/services`)
+	return redirect(`/users/${owner.username}/services/${idParams}`)
 }
 
 export default function PhotoChooserModal() {
@@ -197,14 +197,14 @@ export default function PhotoChooserModal() {
 					/>
 					{newImageSrc ? (
 						<div className="flex gap-4">
-							<Button type="submit">Salvar Foto</Button>
-							<Button type="reset">
+							<Button size='sm' variant='secondary' type="submit">Salvar Foto</Button>
+							<Button size='sm' variant='primary' type="reset">
 								Reiniciar
 							</Button>
 						</div>
 					) : (
 						<div className="flex gap-4">
-							<Button asChild className="cursor-pointer">
+							<Button size='sm' variant='secondary' type='reset' className="cursor-pointer">
 								<label htmlFor={photoFile.id} className="flex gap-1">
 									<Icon name="pencil-1" /> Alterar
 								</label>
@@ -212,6 +212,8 @@ export default function PhotoChooserModal() {
 							{data.note.imageId ? (
 								<Button
 									type="submit"
+									size='sm'
+									variant='primary'
 									form={deleteProfilePhotoFormId}
 									className="flex gap-1"
 								>

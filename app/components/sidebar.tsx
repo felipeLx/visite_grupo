@@ -12,17 +12,17 @@ const sidebarData = [
     },
     {
         title: 'Farmácia',
-        path: '/img/farmacia.png',
+        path: '/img/farmacia.PNG',
         icon: <GiIcons.GiHealthNormal />
     },
     {
         title: 'Polícia',
-        path: '/img/policia.png',
+        path: '/img/policia.PNG',
         icon: <GiIcons.GiPoliceCar />
     },
     {
         title: 'Bombeiros',
-        path: '/img/bombeiro.png',
+        path: '/img/bombeiro.PNG',
         icon: <FaIcons.FaFireAlt />
     }
 ]

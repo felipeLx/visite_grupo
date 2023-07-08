@@ -5,6 +5,8 @@ import {
   Link,
   Outlet,
   isRouteErrorResponse,
+  useActionData,
+  useFetcher,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
@@ -13,11 +15,12 @@ import * as Popover from '@radix-ui/react-popover';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { deleteNote, getKeywords, getNote } from "~/models/note.server";
 import { getUserByUsername } from "~/models/user.server";
-import { Button } from '~/components/ui/button'
+import { Button } from '~/utils/forms';
 import { Icon } from '~/components/ui/icon'
 import { prisma } from '~/utils/db.server'
 import { useEffect, useState } from "react";
 import { getServiceImgSrc } from "~/utils/misc";
+import { DeleteNote } from "~/routes/resources+/delete-note";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   let username: string = params.username ?? '';
@@ -35,7 +38,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   }
 
   const keywords = await getKeywords({serviceId: note.id})
-  return json({ note, username, keywords });
+  return json({ note, username, keywords , isOwner: owner.id === note.ownerId });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
@@ -47,13 +50,12 @@ export const action = async ({ params, request }: ActionArgs) => {
   let idParams = params.serviceId || '';
   
   if (!owner) {
-    throw new Response("Você deve fazer login antes de Cadastrar um serviço.", { status: 404 });
+    throw new Response("Você deve fazer login antes de Cadastrar um serviço.", { status: 304 });
   }
   
   if(formData.get('intent') === 'save-keywords') {
-
     const keywords = formData.get('keywords') as string;
-    let transformedKeywords = keywords? keywords.trim().replace(/(\s+)/g, '').replace(/[^a-zA-Z,]/g, ', ') : ''
+    let transformedKeywords = keywords.trim().replace(/(\s+)/g, '').replace(/[^a-zA-Z,]/g, ', ')
   
     const data = {
       words: transformedKeywords,
@@ -62,16 +64,15 @@ export const action = async ({ params, request }: ActionArgs) => {
   
     const select = {
       id: true,
-      note: {
-        select: {
-          id: true,
-        },
-      },
+      words: true,
+      serviceId: true
     }
 
-    await prisma.keywords.create({ data, select })
+    let newKeywords = await prisma.keywords.create({ data, select })
     let note = await getNote({id: params.serviceId, ownerId: owner.id})
-    return ({ note })
+    console.log(newKeywords)
+    console.log(note)
+    return ({ note, newKeywords })
   }
 
   if(formData.get("intent") === "delete") {
@@ -84,12 +85,17 @@ export const action = async ({ params, request }: ActionArgs) => {
 
 export default function ServiceDetailsPage() {
   const data = useLoaderData<typeof loader>();
-  let [words, setWords] = useState<string|null|undefined>('');
+  const actionData = useActionData();
+  const wordsEditorFetcher = useFetcher<typeof action>()
+  let [keywords, setKeywords] = useState<string>('');
 
-  useEffect(() => {
-    setWords(data?.keywords?.words)
-  }, [data]);
-
+  let cleannedKeywords = data?.keywords?.words
+  console.log(cleannedKeywords)
+  const handleKeywords = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setKeywords(event.currentTarget.value);
+  };
+  
   return (
     <div className="container mt-16 flex flex-col gap-12">
       <div className="flex justify-center">
@@ -100,8 +106,9 @@ export default function ServiceDetailsPage() {
 							className="h-full w-full rounded-full object-cover"
 						/>
 						<Button
-							asChild
-							className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+              size='sm'
+							variant="primary"
+              className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
 						>
 							<Link
 								preventScrollReset
@@ -117,8 +124,8 @@ export default function ServiceDetailsPage() {
       <h3 className="text-2xl font-bold">{data.note.title}</h3>
       <p className="py-6">{data.note.content}</p>
       {/*  Pop-over para adicionar keywords */}
-      <p className="py-6">{words}</p>
-      {words?.length === 0 && 
+      <p className="py-6">{cleannedKeywords}</p>
+      {!cleannedKeywords && 
         <Popover.Root>
           <Popover.Trigger asChild>
             <button
@@ -136,7 +143,7 @@ export default function ServiceDetailsPage() {
               <div className="flex flex-col gap-2.5">
                 <p className="text-mauve12 text-xl leading-[19px] font-bold mb-2.5">Coloque palavras únicas e separadas por vírgula</p>
                 <em>exemplo: criança, comida, lanche, animais, delivery, artesanato, chaveiro, rede, flores, arranjos</em>
-                <Form
+                <wordsEditorFetcher.Form
                   method="POST"
                   action={`/users/${data.username}/services/${data.note.id}`}                
                 >
@@ -146,12 +153,15 @@ export default function ServiceDetailsPage() {
                         id="keywords"
                         name="keywords"
                         autoComplete='keywords'
+                        value={keywords}
+                        onChange={handleKeywords}
                         className='text-white w-full h-40 bg-black p-2 items-center'
                       />
                     </div>
                   </fieldset>
                   <div className="flex justify-center gap-4 mt-2">
                     <button
+                      type="submit"
                       name="intent"
                       value="save-keywords"
                       className="rounded bg-slate-950 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-600"
@@ -159,7 +169,7 @@ export default function ServiceDetailsPage() {
                       Gravar
                     </button>
                   </div>
-                </Form>
+                </wordsEditorFetcher.Form>
               </div>
               <Popover.Close
                 className="rounded-full h-[25px] w-[25px] inline-flex items-center justify-center text-violet11 absolute top-[5px] right-[5px] hover:bg-violet4 focus:shadow-[0_0_0_2px] focus:shadow-violet7 outline-none cursor-default"
@@ -173,16 +183,14 @@ export default function ServiceDetailsPage() {
         </Popover.Root>
       }
       <hr className="my-4" />
-      <Form method="post">
-        <button
-          type="submit"
-          name="intent"
-          value="delete"
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-        >
-          Apagar
-        </button>
-      </Form>
+      {data.isOwner ? (
+				<div className="flex justify-end gap-4">
+					<DeleteNote id={data.note.id} />
+					<Button size='sm' variant='primary' className="cursor-pointer">
+						<Link to="edit">Editar</Link>
+					</Button>
+				</div>
+			) : null}
       <Outlet />
     </div>
   );

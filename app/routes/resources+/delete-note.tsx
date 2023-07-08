@@ -4,15 +4,15 @@ import { Button, ErrorList } from '~/utils/forms'
 import { useForm } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { z } from 'zod'
-import { requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
+import { getUserId } from '~/utils/session.server'
 
 const DeleteFormSchema = z.object({
 	noteId: z.string(),
 })
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await getUserId(request)
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: DeleteFormSchema,
@@ -71,7 +71,7 @@ export function DeleteNote({ id }: { id: string }) {
 			<input type="hidden" name="noteId" value={id} />
 			<Button
 				type="submit"
-				size="md"
+				size="sm"
 				variant="secondary"
 				status={
 					noteDeleteFetcher.state === 'submitting'
@@ -80,7 +80,7 @@ export function DeleteNote({ id }: { id: string }) {
 				}
 				disabled={noteDeleteFetcher.state !== 'idle'}
 			>
-				Delete
+				Apagar
 			</Button>
 			<ErrorList errors={form.errors} id={form.errorId} />
 		</noteDeleteFetcher.Form>

@@ -1,11 +1,11 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { NoteEditor } from '~/routes/resources+/note-editor'
-import { requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
+import { getUserId } from '~/utils/session.server'
 
 export async function loader({ params, request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await getUserId(request)
 	const note = await prisma.note.findFirst({
 		where: {
 			id: params.serviceId,

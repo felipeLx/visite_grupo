@@ -19,7 +19,7 @@ export function getNote({
   ownerId: User["id"];
 }) {
   return prisma.note.findFirst({
-    select: { id: true, content: true, title: true, keywords: true, imageId: true },
+    select: { id: true, content: true, title: true, keywords: true, imageId: true, ownerId: true },
     where: { id, ownerId },
   });
 }

@@ -122,7 +122,7 @@ export function CheckboxField({
 	const errorId = errors?.length ? `${id}-error` : undefined
 	return (
 		<div className={styles.checkboxField}>
-			<div className="flex gap-2">
+			<div className="flex gap-2 pt-4 m-2">
 				<Checkbox.Root
 					id={id}
 					ref={buttonRef}
@@ -218,7 +218,7 @@ export function Button({
 			{...props}
 			className={twMerge(
 				getButtonClassName({ size, variant }),
-				'flex justify-center gap-4',
+				'flex justify-center gap-4 text-white',
 				props.className,
 			)}
 		>

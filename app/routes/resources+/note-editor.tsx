@@ -1,29 +1,30 @@
 import { conform, useForm } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import { json, type DataFunctionArgs } from '@remix-run/node'
 import { useFetcher } from '@remix-run/react'
-import { useState } from 'react'
 import { z } from 'zod'
+import { requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
-import { Button, ErrorList, Field, TextareaField } from '~/utils/forms'
-import { getUser } from '~/utils/session.server'
+import { ErrorList, Field, TextareaField } from '~/components/forms'
+import { redirectWithToast } from '~/utils/flash-session.server'
+import { CheckboxField, Button } from '~/utils/forms'
+import { getUserId } from '~/utils/session.server'
 
 export const NoteEditorSchema = z.object({
 	id: z.string().optional(),
-	title: z.string().min(1),
-	content: z.string().min(1),
-	phone: z.string().min(1),
-	site: z.string().min(1),
-	latitud: z.string().min(1),
-	longitud: z.string().min(1),
-	delivery: z.string().min(1),
-	open: z.string().min(1),
-	close: z.string().min(1),
+	title: z.string().min(3, 'Coloque um título maior'),
+	content: z.string().min(10, 'Faça uma descrição maior.'),
+	site: z.string().url('Precisa ser uma url válida: https://'),
+	phone: z.string().min(11, 'Coloque o telefone com DDD, ex: 22999378572'),
+	latitud: z.string().startsWith('-', 'Latitude para o Brasil começa com -'),
+	longitud: z.string().startsWith('-', 'Longitude para o Brasil começa com -'),
+	open: z.string().optional(),
+	close: z.string().optional(),
+	delivery: z.string().optional(),
 })
 
-
 export async function action({ request }: DataFunctionArgs) {
-	const owner = await getUser(request)
+	const userId = await getUserId(request) ||''
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
@@ -43,19 +44,30 @@ export async function action({ request }: DataFunctionArgs) {
 	}
 	let note: { id: string; owner: { username: string } }
 
-	const { title, content, id, site, phone, open, close, delivery, nodelivery, latitud, longitud } = submission.value
+	const { title, content, id, site, phone, latitud, longitud, delivery, open, close } = submission.value
 
-	let doDelivery = delivery === 'on' ? 'Sim' : 'Não';
+	if(typeof title !== 'string' || typeof content !== 'string' || typeof site !== 'string' || typeof phone !== 'string' || typeof latitud !== 'string' || typeof longitud !== 'string' || typeof open !== 'string' || typeof close !== 'string') {
+		return json(
+			{
+				status: 'error',
+				submission,
+			} as const,
+			{ status: 400 },
+		)
+	}
 
+	let transformedDelivery = delivery === 'on' ? 'Sim' : 'Não';
+	let transformedPhone = phone.replace(/[0-9]+/g,'')
+	
 	const data = {
-		ownerId: owner?.id,
+		ownerId: userId,
 		title: title,
 		content: content,
 		site: site,
-		phone: phone,
+		phone: transformedPhone,
+		delivery: transformedDelivery,
 		open: open,
 		close: close,
-		delivery: doDelivery,
 		latitud: latitud,
 		longitud: longitud
 	}
@@ -65,13 +77,12 @@ export async function action({ request }: DataFunctionArgs) {
 		owner: {
 			select: {
 				username: true,
-
 			},
 		},
 	}
 	if (id) {
 		const existingNote = await prisma.note.findFirst({
-			where: { id, ownerId: owner?.id },
+			where: { id, ownerId: userId },
 			select: { id: true },
 		})
 		if (!existingNote) {
@@ -91,28 +102,17 @@ export async function action({ request }: DataFunctionArgs) {
 	} else {
 		note = await prisma.note.create({ data, select })
 	}
-	return redirect(`/users/${note.owner.username}/services/${note.id}`)
+	return redirectWithToast(`/users/${note.owner.username}/services/${note.id}`, {
+		title: id ? 'Note updated' : 'Note created',
+	})
 }
 
 export function NoteEditor({
 	note,
 }: {
-	note?: { id: string; title: string; content: string; site: string; phone: string; open: string; close: string; latitud: string; longitud: string; delivery: string; keywords: string;}
+	note?: { id: string; title: string; content: string, site: string; phone: string; latitud: string, longitud: string;  }
 }) {
 	const noteEditorFetcher = useFetcher<typeof action>()
-
-	const [isIn, setIsIn] = useState(false);
-	const handleInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		e.preventDefault();
-		setIsIn(!isIn); setIsOut(false);
-	};
-	const [isOut, setIsOut] = useState(false);
-	
-	const handleOutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		e.preventDefault();
-		setIsOut(!isOut);
-		setIsIn(false);
-	};
 
 	const [form, fields] = useForm({
 		id: 'note-editor',
@@ -126,151 +126,116 @@ export function NoteEditor({
 			content: note?.content,
 			site: note?.site,
 			phone: note?.phone,
-			open: note?.open,
-			close: note?.close,
 			latitud: note?.latitud,
 			longitud: note?.longitud,
-			delivery: note?.delivery,
-			keywords: note?.keywords,
 		},
 		shouldRevalidate: 'onBlur',
 	})
 
 	return (
 		<noteEditorFetcher.Form
-			method="POST"
+			method="post"
 			action="/resources/note-editor"
 			{...form.props}
 		>
 			<input name="id" type="hidden" value={note?.id} />
 			<Field
-				labelProps={{ htmlFor: fields.title.id, children: 'Título' }}
-				inputProps={{
+				labelProps={{ children: 'Título' }}
+					inputProps={{
 					...conform.input(fields.title),
 					autoComplete: 'title',
 				}}
-				className='text-white text-lg font-bold'
 				errors={fields.title.errors}
 			/>
 			<TextareaField
-				labelProps={{ htmlFor: fields.content.id, children: 'Descrição' }}
+				labelProps={{ children: 'Descrição' }}
 				textareaProps={{
 					...conform.textarea(fields.content),
 					autoComplete: 'content',
 				}}
-				className='text-white'
 				errors={fields.content.errors}
 			/>
-			<div className='flex w-full flex-row'>
+			<div className='flex flex-row w-full justify-between'>
 				<Field
-					labelProps={{ htmlFor: fields.phone.id, children: 'Telefone (só números com Whatsapp, ex: 22999378572)' }}
-					inputProps={{
+					labelProps={{ children: 'Telefone, só números (ex. 22999357043)' }}
+						inputProps={{
 						...conform.input(fields.phone),
-						autoComplete: 'phone'
+						autoComplete: 'phone',
 					}}
-					className='text-white flex w-full'
+					className='w-full'
 					errors={fields.phone.errors}
 				/>
 				<Field
-					labelProps={{ htmlFor: fields.site.id, children: 'Site (ex: https://meusite.com.br ou https://facebook.com/meuUsuario)' }}
-					inputProps={{
+					labelProps={{ children: 'Site ou sua rede social com seu trabalho' }}
+						inputProps={{
 						...conform.input(fields.site),
 						autoComplete: 'site',
 					}}
-					className='text-white flex w-full'
+					className='w-full ml-2'
 					errors={fields.site.errors}
 				/>
 			</div>
-			<div className='flex w-full flex-row justify-between space-x-2'>
+			<div className='flex flex-row w-full justify-around'>
 				<Field
-					labelProps={{ htmlFor: fields.open.id, children: 'Aberto às' }}
-					inputProps={{
-						...conform.input(fields.open),
-						autoComplete: 'open',
-						type: 'time'
-					}}
-					className='text-white'
-					errors={fields.open.errors}
-				/>
-				<Field
-					labelProps={{ htmlFor: fields.close.id, children: 'Fecha às' }}
-					inputProps={{
-						...conform.input(fields.close),
-						autoComplete: 'close',
-						type: 'time'
-					}}
-					className='text-white'
-					errors={fields.close.errors}
-				/>
-				<div className="flex-none border-[1.5px] h-[4.15rem] border-night-400 bg-night-700 hover:border-brand-primary focus:border-brand-primary active:border-brand-primary-muted text-night-200 text-sm font-light px-2 pt-1 rounded-lg text-center">
-					<label className="flex w-full flex-col gap-1">
-						<span>Faz Entrega? </span>
-						<div className='flex flex-row space-x-2'>
-							<div className="block min-h-[0.5rem] pl-[1.5rem]">
-							<input
-								className="relative float-left -ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] checked:bg-indigo-950 appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none"
-								type="checkbox"
-								name="delivery"              
-								checked={isIn}
-								onChange={handleInChange}
-								id="checkboxDefault" />
-							<label
-								className="inline-block pl-[0.15rem] hover:cursor-pointer"
-								htmlFor="checkboxDefault">
-								Sim
-							</label>
-							</div>
-							<div className="block min-h-[0.5rem] pl-[1.5rem]">
-							<input
-								className="relative float-left -ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] checked:bg-indigo-950 appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none"
-								type="checkbox"
-								name="nodelivery"
-								checked={isOut}
-								onChange={handleOutChange}
-								id="checkboxChecked"
-								/>
-							<label
-								className="inline-block pl-[0.15rem] hover:cursor-pointer"
-								htmlFor="checkboxChecked">
-								Não
-							</label>
-							</div>
-						</div>
-					</label>
-					</div>
-				<Field
-					labelProps={{ htmlFor: fields.latitud.id, children: 'ex. -22.8988856' }}
-					inputProps={{
+					labelProps={{ children: 'Latitude (ex. -22.45763)' }}
+						inputProps={{
 						...conform.input(fields.latitud),
 						autoComplete: 'latitud',
+						type: "text"
 					}}
-					className='text-white flex w-full'
+					className='p-2'
 					errors={fields.latitud.errors}
 				/>
 				<Field
-					labelProps={{ htmlFor: fields.longitud.id, children: 'ex. -42.4406357' }}
-					inputProps={{
+					labelProps={{ children: 'Longitude (ex. -42.42759)' }}
+						inputProps={{
 						...conform.input(fields.longitud),
 						autoComplete: 'longitud',
+						type: "text"
 					}}
-					className='text-white flex w-full'
+					className='p-2 ml-2'
 					errors={fields.longitud.errors}
+				/>
+				<CheckboxField
+					labelProps={{ children: 'Faz Delivery?' }}
+					buttonProps={{
+						...conform.input(fields.delivery),
+					}}
+					errors={fields.delivery.errors}
+				/>
+				<Field
+					labelProps={{ children: 'Abre às' }}
+						inputProps={{
+						...conform.input(fields.open),
+						autoComplete: 'open',
+						type: "time"
+					}}
+					className='p-2 ml-2'
+					errors={fields.open.errors}
+				/>
+				<Field
+					labelProps={{ children: 'Fecha às' }}
+						inputProps={{
+						...conform.input(fields.close),
+						autoComplete: 'close',
+						type: "time"
+					}}
+					className='p-2 ml-2'
+					errors={fields.close.errors}
 				/>
 			</div>
 			<ErrorList errors={form.errors} id={form.errorId} />
-			<div className="flex justify-center gap-4">
-				<Button size="md" variant="secondary" className='text-white' type="reset">
-					Reinicar
+			<div className="flex justify-end gap-4">
+				<Button type="reset" size='md' variant='primary'>
+					Reiniciar
 				</Button>
 				<Button
-					size="md"
-					variant="primary"
+					type="submit" size='md' variant='secondary'
 					status={
 						noteEditorFetcher.state === 'submitting'
 							? 'pending'
 							: noteEditorFetcher.data?.status ?? 'idle'
 					}
-					type="submit"
 					disabled={noteEditorFetcher.state !== 'idle'}
 				>
 					Gravar

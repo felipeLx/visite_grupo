@@ -1,7 +1,7 @@
 "use strict";
 
-import fs from 'fs'
-import { getPasswordHash } from '~/utils/auth.server'
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
@@ -13,7 +13,7 @@ async function seed() {
 	console.log('🌱 Seeding...')
 	console.time(`🌱 Database has been seeded`)
 
-	
+	/* 
 	const adminRole = await db.role.create({
 		data: {
 			name: 'admin',
@@ -26,7 +26,9 @@ async function seed() {
 
 	console.time(
 		`🐨 Created user and admin role`,
-	)
+	) 
+	*/
+
 	await db.user.create({
 		data: {
 			email: 'ale@pizza.com',
@@ -46,7 +48,7 @@ async function seed() {
 			},
 			password: {
 				create: {
-					hash: await getPasswordHash('123456789'),
+					hash: await bcrypt.hash('123456789', 10),
 				},
 			},
 			notes: {
@@ -105,7 +107,7 @@ async function seed() {
 			},
 			password: {
 				create: {
-					hash: await getPasswordHash('123456789'),
+					hash: await bcrypt.hash('123456789', 10),
 				},
 			},
 			notes: {
@@ -163,7 +165,7 @@ async function seed() {
 			},
 			password: {
 				create: {
-					hash: await getPasswordHash('123456789'),
+					hash: await bcrypt.hash('123456789', 10),
 				},
 			},
 			notes: {
@@ -221,7 +223,7 @@ async function seed() {
 			},
 			password: {
 				create: {
-					hash: await getPasswordHash('123456789'),
+					hash: await bcrypt.hash('123456789', 10),
 				},
 			},
 			notes: {
