@@ -4,12 +4,12 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/utils/session.server";
+import { createUserSession, getUser } from "~/utils/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  const user = await getUser(request);
+  if (user) return redirect("/");
   return json({});
 };
 
@@ -71,8 +71,8 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  const user = await createUser(email, username, name, password);
-
+  const user = await createUser(name, username, email, password);
+  
   return createUserSession({
     redirectTo,
     remember: false,
@@ -217,7 +217,6 @@ export default function Join() {
               ) : null}
             </div>
           </div>
-
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
             type="submit"

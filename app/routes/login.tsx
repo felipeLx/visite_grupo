@@ -4,12 +4,12 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
 import { verifyLogin } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/utils/session.server";
+import { createUserSession, getUser } from "~/utils/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  const user = await getUser(request);
+  if (user) return redirect("/");
   return json({});
 };
 
@@ -42,7 +42,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const user = await verifyLogin(email, password);
-
+  
   if (!user) {
     return json(
       { errors: { email: "E-mail ou Senha inválido", password: null } },
@@ -58,7 +58,7 @@ export const action = async ({ request }: ActionArgs) => {
   });
 };
 
-export const meta: V2_MetaFunction = () => [{ title: "Visite VIlatur | Entrar" }];
+export const meta: V2_MetaFunction = () => [{ title: "Visite Vilatur | Entrar" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();

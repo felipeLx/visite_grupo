@@ -5,14 +5,15 @@ import { useForm } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { z } from 'zod'
 import { prisma } from '~/utils/db.server'
-import { getUserId } from '~/utils/session.server'
+import { getUser } from '~/utils/session.server'
+import { deleteNote } from '~/models/note.server'
 
 const DeleteFormSchema = z.object({
 	noteId: z.string(),
 })
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await getUserId(request)
+	const user = await getUser(request)
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: DeleteFormSchema,
@@ -34,9 +35,11 @@ export async function action({ request }: DataFunctionArgs) {
 		select: { id: true, owner: { select: { username: true } } },
 		where: {
 			id: noteId,
-			ownerId: userId,
+			ownerId: user?.id,
 		},
 	})
+
+	console.log('note', note)
 	if (!note) {
 		submission.error.noteId = ['Note not found']
 		return json({ status: 'error', submission } as const, {
@@ -44,10 +47,7 @@ export async function action({ request }: DataFunctionArgs) {
 		})
 	}
 
-	await prisma.note.delete({
-		where: { id: note.id },
-	})
-
+	await deleteNote({id: note.id, ownerId: user?.id || ''})
 	return redirect(`/users/${note.owner.username}/services`)
 }
 
@@ -64,7 +64,7 @@ export function DeleteNote({ id }: { id: string }) {
 
 	return (
 		<noteDeleteFetcher.Form
-			method="post"
+			method="POST"
 			action="/resources/delete-note"
 			{...form.props}
 		>

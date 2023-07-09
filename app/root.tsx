@@ -1,4 +1,3 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
 //import { Sidebar } from "./components/sidebar";
 import {
 	Links,
@@ -7,29 +6,21 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
-	Form,
-	Link,
-	useSubmit,
 	useLoaderData,
 } from "@remix-run/react";
 import { getUser } from "~/utils/session.server";
-import fontStylestylesheetUrl from '~/styles/font.css'
-import tailwindStylesheetUrl from '~/styles/tailwind.css'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import {
 	json,
 	type HeadersFunction,
 	type LinksFunction,
 	type LoaderArgs,
 } from '@remix-run/node'
-import { ButtonLink } from '~/utils/forms'
-import { getUserImgSrc } from '~/utils/misc'
 import { useNonce } from '~/utils/nonce-provider'
-// import { makeTimings, time } from '~/utils/timing.server'
-import { useUser } from '~/utils/user'
-import { useRef } from 'react'
+import { cssBundleHref } from "@remix-run/css-bundle";
+import fontStylestylesheetUrl from '~/styles/font.css'
+import tailwindStylesheetUrl from '~/styles/tailwind.css'
 
-export const links: LinksFunction = () => {
+export const links: LinksFunction | any = () => {
 	return [
 		// Preload CSS as a resource to avoid render blocking
 		{ rel: 'preload', href: fontStylestylesheetUrl, as: 'style' },
@@ -69,7 +60,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 
 export default function App() {
 	//const location = useLocation();
-	const { user, gaTrackingId } = useLoaderData<typeof loader>();
+	const { gaTrackingId } = useLoaderData<typeof loader>();
 	const nonce = useNonce()
 	//const user = useOptionalUser()
 
@@ -110,7 +101,7 @@ export default function App() {
               `,
               }}
             />
-            <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11175127343"></script>
+            {/*<script async src="https://www.googletagmanager.com/gtag/js?id=AW-11175127343"></script>
             <script 
               async
               id="gads-init"
@@ -122,22 +113,10 @@ export default function App() {
               }} />
             <script async id="gads-event" dangerouslySetInnerHTML={{
               __html: `gtag('event', 'conversion', {'send_to': 'AW-11175127343/-pHcCNmV554YEK_S29Ap'});`}}>
-            </script>
+			</script>*/}
           </>
         )}
-        <header>
-			<nav className="flex justify-between ">
-				<div className="flex w-full items-center p-4 bg-indigo-950">
-					{user ? (
-						<UserDropdown />
-					) : (
-						<ButtonLink to="/login" size="sm" variant="primary" className="m-2">
-							Entrar
-						</ButtonLink>
-					)}
-				</div>
-			</nav>
-		</header>
+        
         <Outlet />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
@@ -145,77 +124,4 @@ export default function App() {
       </body>
     </html>
   );
-}
-
-
-function UserDropdown() {
-	const user = useUser()
-	const submit = useSubmit()
-	const formRef = useRef<HTMLFormElement>(null)
-	return (
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger asChild>
-				<Link
-					to={`/users/${user.username}`}
-					// this is for progressive enhancement
-					onClick={e => e.preventDefault()}
-					className="bg-brand-500 hover:bg-brand-400 focus:bg-brand-400 radix-state-open:bg-brand-400 flex items-center gap-2 rounded-full py-2 pl-2 pr-4 outline-none"
-				>
-					<img
-						className="h-8 w-8 rounded-full object-cover"
-						alt={user.name ?? user.username}
-						src={getUserImgSrc(user.imageId)}
-					/>
-					<span className="text-body-sm font-bold text-white">
-						{user.name ?? user.username}
-					</span>
-				</Link>
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Portal>
-				<DropdownMenu.Content
-					sideOffset={8}
-					align="start"
-					className="flex flex-col rounded-3xl bg-indigo-950 text-white"
-				>
-					<DropdownMenu.Item asChild>
-						<Link
-							prefetch="intent"
-							to={`/users/${user.username}`}
-							className="hover:bg-brand-500 radix-highlighted:bg-brand-500 rounded-t-3xl px-7 py-5 outline-none"
-						>
-							Perfil
-						</Link>
-					</DropdownMenu.Item>
-					<DropdownMenu.Item asChild>
-						<Link
-							prefetch="intent"
-							to={`/users/${user.username}/services`}
-							className="hover:bg-brand-500 radix-highlighted:bg-brand-500 px-7 py-5 outline-none"
-						>
-							Serviços
-						</Link>
-					</DropdownMenu.Item>
-					<DropdownMenu.Item
-						asChild
-						// this prevents the menu from closing before the form submission is completed
-						onSelect={event => {
-							event.preventDefault()
-							submit(formRef.current)
-						}}
-					>
-						<Form
-							action="/logout"
-							method="POST"
-							className="radix-highlighted:bg-brand-500 rounded-b-3xl outline-none"
-							ref={formRef}
-						>
-							<button type="submit" className="px-7 py-5">
-								Sair
-							</button>
-						</Form>
-					</DropdownMenu.Item>
-				</DropdownMenu.Content>
-			</DropdownMenu.Portal>
-		</DropdownMenu.Root>
-	)
 }

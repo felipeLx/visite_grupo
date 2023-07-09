@@ -1,24 +1,18 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
-  Form,
   Link,
   Outlet,
   isRouteErrorResponse,
-  useActionData,
-  useFetcher,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import * as Popover from '@radix-ui/react-popover';
-import { Cross2Icon } from '@radix-ui/react-icons';
-import { deleteNote, getKeywords, getNote } from "~/models/note.server";
+import { deleteNote, getNote } from "~/models/note.server";
 import { getUserByUsername } from "~/models/user.server";
 import { Button } from '~/utils/forms';
 import { Icon } from '~/components/ui/icon'
 import { prisma } from '~/utils/db.server'
-import { useEffect, useState } from "react";
 import { getServiceImgSrc } from "~/utils/misc";
 import { DeleteNote } from "~/routes/resources+/delete-note";
 
@@ -37,8 +31,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     throw new Response("Serviço não encontrado", { status: 404 });
   }
 
-  const keywords = await getKeywords({serviceId: note.id})
-  return json({ note, username, keywords , isOwner: owner.id === note.ownerId });
+  return json({ note, username, isOwner: owner.id === note.ownerId });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
@@ -55,8 +48,9 @@ export const action = async ({ params, request }: ActionArgs) => {
   
   if(formData.get('intent') === 'save-keywords') {
     const keywords = formData.get('keywords') as string;
-    let transformedKeywords = keywords.trim().replace(/(\s+)/g, '').replace(/[^a-zA-Z,]/g, ', ')
-  
+    let transformedKeywords = [...new Set(keywords.trim().replace(/(\s+)/g, '').replace(/[^a-zA-Z,]/g, ', ').split(','))]
+    console.log('trKey',transformedKeywords)
+/*  
     const data = {
       words: transformedKeywords,
       serviceId: idParams
@@ -67,26 +61,35 @@ export const action = async ({ params, request }: ActionArgs) => {
       words: true,
       serviceId: true
     }
-
-    let newKeywords = await prisma.keywords.create({ data, select })
+  */  
+    new Promise(() => transformedKeywords.map(async(trK: any) => {
+      return await prisma.note.update({
+        where: {id: idParams},
+        data: {
+          keywords: {upsert: {
+            words: trK
+          }}
+        },
+      })
+    }))
+    
+    //let newKeywords = await prisma.keywords.create({ data, select })
     let note = await getNote({id: params.serviceId, ownerId: owner.id})
-    console.log(newKeywords)
-    console.log(note)
-    return ({ note, newKeywords })
+    
+    return ({ note, keywords })
   }
 
   if(formData.get("intent") === "delete") {
-    await deleteNote({ id: idParams, ownerId: owner.id });
+    let id = formData.get('serviceId') as string;
+    await deleteNote({ id: id, ownerId: owner.id });
     return redirect("/services");
-
   }
-
 };
 
 export default function ServiceDetailsPage() {
   const data = useLoaderData<typeof loader>();
-  const actionData = useActionData();
-  const wordsEditorFetcher = useFetcher<typeof action>()
+  
+  /* const wordsEditorFetcher = useFetcher<typeof action>()
   let [keywords, setKeywords] = useState<string>('');
 
   let cleannedKeywords = data?.keywords?.words
@@ -95,7 +98,7 @@ export default function ServiceDetailsPage() {
     event.preventDefault();
     setKeywords(event.currentTarget.value);
   };
-  
+   */
   return (
     <div className="container mt-16 flex flex-col gap-12">
       <div className="flex justify-center">
@@ -124,8 +127,41 @@ export default function ServiceDetailsPage() {
       <h3 className="text-2xl font-bold">{data.note.title}</h3>
       <p className="py-6">{data.note.content}</p>
       {/*  Pop-over para adicionar keywords */}
-      <p className="py-6">{cleannedKeywords}</p>
-      {!cleannedKeywords && 
+      <p className="py-6">{data.note.keywords}</p>
+      
+      {data.isOwner ? (
+				<div className="flex justify-end gap-4">
+					<DeleteNote id={data.note.id} />
+					<Button size='sm' variant='primary' className="cursor-pointer">
+						<Link to="edit">Editar</Link>
+					</Button>
+				</div>
+			) : null}
+      <Outlet />
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (error instanceof Error) {
+    return <div>An unexpected error occurred: {error.message}</div>;
+  }
+
+  if (!isRouteErrorResponse(error)) {
+    return <h1>Unknown Error</h1>;
+  }
+
+  if (error.status === 404) {
+    return <div>Serviço não encontrado</div>;
+  }
+
+  return <div>An unexpected error occurred: {error.statusText}</div>;
+}
+
+/*
+{!cleannedKeywords && 
         <Popover.Root>
           <Popover.Trigger asChild>
             <button
@@ -183,33 +219,4 @@ export default function ServiceDetailsPage() {
         </Popover.Root>
       }
       <hr className="my-4" />
-      {data.isOwner ? (
-				<div className="flex justify-end gap-4">
-					<DeleteNote id={data.note.id} />
-					<Button size='sm' variant='primary' className="cursor-pointer">
-						<Link to="edit">Editar</Link>
-					</Button>
-				</div>
-			) : null}
-      <Outlet />
-    </div>
-  );
-}
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (error instanceof Error) {
-    return <div>An unexpected error occurred: {error.message}</div>;
-  }
-
-  if (!isRouteErrorResponse(error)) {
-    return <h1>Unknown Error</h1>;
-  }
-
-  if (error.status === 404) {
-    return <div>Serviço não encontrado</div>;
-  }
-
-  return <div>An unexpected error occurred: {error.statusText}</div>;
-}
+*/

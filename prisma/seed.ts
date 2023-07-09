@@ -70,12 +70,7 @@ async function seed() {
 							},
 						},
 						site: "https://app.anota.ai/m/Y7l3fjIJw",
-						keywords: {create: [
-									{words: "pizza" },
-									{words: "lanche"},
-									{words: "hamburger"},
-									{words:  "delivery"}
-						]},
+						keywords:  "pizza, lanche, hamburger, delivery",
 					},
 				],
 			},
@@ -129,12 +124,7 @@ async function seed() {
 							},
 						},
 						site: "",
-						keywords: {create: [
-									{words: "roupa" },
-									{words: "moda"},
-									{words: "feminino"},
-									{words:  "delivery"}
-						]},
+						keywords:  "roupa, acessorio, moda, feminino",
 					},
 				],
 			},
@@ -187,12 +177,7 @@ async function seed() {
 							},
 						},
 						site: "https://deliciasdavila.ola.click/products",
-						keywords: {create: [
-							{words: "salgado" },
-							{words: "lanche"},
-							{words: "almoço"},
-							{words:  "delivery"}
-						]},
+						keywords:  "pizza, lanche, hamburger, delivery",
 					},
 				],
 			},
@@ -245,14 +230,7 @@ async function seed() {
 							},
 						},
 						site: "https://www.facebook.com/ranchodascigarras/",
-						keywords: {create: [
-							{words: "almoço" },
-							{words: "comida"},
-							{words: "queijos"},
-							{words: "crianças"},
-							{words: "criança"},
-							{words: "delivery"},
-						]},
+						keywords:  "crianças, alomoço, feijoada, sítio, lazer, cavalo",
 					},
 				],
 			},

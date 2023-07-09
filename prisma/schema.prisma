@@ -125,18 +125,10 @@ model Note {
   delivery String?
   phone String?
   site String?
-  
-  keywords Keywords[]
+  keywords String?
+
   image   Image?  @relation(fields: [imageId], references: [fileId])
   imageId String? @unique
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   ownerId String
 }
-
-model Keywords {
-  id String @id @unique @default(cuid())
-  words String?
-  serviceId String
-  note Note @relation(fields: [serviceId], references: [id])
-}
-

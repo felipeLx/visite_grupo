@@ -9,6 +9,7 @@ import { ErrorList, Field, TextareaField } from '~/components/forms'
 import { redirectWithToast } from '~/utils/flash-session.server'
 import { CheckboxField, Button } from '~/utils/forms'
 import { getUserId } from '~/utils/session.server'
+import { getUserById } from '~/models/user.server'
 
 export const NoteEditorSchema = z.object({
 	id: z.string().optional(),
@@ -21,6 +22,7 @@ export const NoteEditorSchema = z.object({
 	open: z.string().optional(),
 	close: z.string().optional(),
 	delivery: z.string().optional(),
+	keywords: z.string().optional(),
 })
 
 export async function action({ request }: DataFunctionArgs) {
@@ -44,9 +46,9 @@ export async function action({ request }: DataFunctionArgs) {
 	}
 	let note: { id: string; owner: { username: string } }
 
-	const { title, content, id, site, phone, latitud, longitud, delivery, open, close } = submission.value
+	const { title, content, id, site, phone, latitud, longitud, delivery, open, close, keywords } = submission.value
 
-	if(typeof title !== 'string' || typeof content !== 'string' || typeof site !== 'string' || typeof phone !== 'string' || typeof latitud !== 'string' || typeof longitud !== 'string' || typeof open !== 'string' || typeof close !== 'string') {
+	if(typeof title !== 'string' || typeof content !== 'string' || typeof site !== 'string' || typeof phone !== 'string' || typeof latitud !== 'string' || typeof longitud !== 'string' || typeof open !== 'string' || typeof close !== 'string' || typeof keywords !== 'string') {
 		return json(
 			{
 				status: 'error',
@@ -58,6 +60,8 @@ export async function action({ request }: DataFunctionArgs) {
 
 	let transformedDelivery = delivery === 'on' ? 'Sim' : 'Não';
 	let transformedPhone = phone.replace(/[0-9]+/g,'')
+	let transformedKeywords = keywords.replace(/[^a-zA-Zãõêâôéáíóúç]/,', ')
+	console.log(transformedKeywords)
 	
 	const data = {
 		ownerId: userId,
@@ -69,7 +73,8 @@ export async function action({ request }: DataFunctionArgs) {
 		open: open,
 		close: close,
 		latitud: latitud,
-		longitud: longitud
+		longitud: longitud,
+		keywords: transformedKeywords,
 	}
 
 	const select = {
@@ -110,7 +115,7 @@ export async function action({ request }: DataFunctionArgs) {
 export function NoteEditor({
 	note,
 }: {
-	note?: { id: string; title: string; content: string, site: string; phone: string; latitud: string, longitud: string;  }
+	note?: { id: string; title: string; content: string, site: string; phone: string; latitud: string, longitud: string; open: string; close: string; keywords: string; }
 }) {
 	const noteEditorFetcher = useFetcher<typeof action>()
 
@@ -128,6 +133,9 @@ export function NoteEditor({
 			phone: note?.phone,
 			latitud: note?.latitud,
 			longitud: note?.longitud,
+			open: note?.open,
+			close: note?.close,
+			keywords: note?.keywords
 		},
 		shouldRevalidate: 'onBlur',
 	})
@@ -173,6 +181,17 @@ export function NoteEditor({
 					}}
 					className='w-full ml-2'
 					errors={fields.site.errors}
+				/>
+			</div>
+			<div className='flex flex-row w-full justify-between'>
+				<Field
+					labelProps={{ children: 'Palavras chave: ex. comida, lanche, artesanato, servicos' }}
+						inputProps={{
+						...conform.input(fields.keywords),
+						autoComplete: 'keywords',
+					}}
+					className='w-full'
+					errors={fields.keywords.errors}
 				/>
 			</div>
 			<div className='flex flex-row w-full justify-around'>
