@@ -35,15 +35,6 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({user, notes, notesToLoad});
 };
 
-
-export const meta: V2_MetaFunction = () => {
-  return [{
-    title: "Visite Vilatur",
-    description:
-      "Vilatur, bairro de Saquarema. Site com as propostas de serviços, produtos e eventos de Vilatur, Saquarema, Rio de Janeiro.",
-  }];
-};
-
 export default function Index() {
   const data = useLoaderData<typeof loader>();
   const [params] = useSearchParams();

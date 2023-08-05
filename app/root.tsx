@@ -71,12 +71,12 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="title" content="Visite Vilatur" />
         <meta property="og:image" content="/img/praia-vilatur.jpg" />
-        <meta property="og:title" content="Vilatur: visite Vilatur" />
-        <meta property="og:description" content="Visite Vilatur é uma página com os produtos, serviços e informações relevantes do bairro mais bohêmio de Saquarema. " />
+        <meta property="og:title" content="Vilatur: visite Vilatur, Saquarema, RJ, site com os principais produtos e serviços de Vilatur, Saquarema, RJ" />
+        <meta property="og:description" content="Visite Vilatur é uma página com os produtos, serviços e informações relevantes do bairro mais bohêmio de Saquarema, visite Vilatur, Saquarema, RJ, site com os principais produtos e serviços de Vilatur, Saquarema, RJ." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vilatur.fly.dev/" />
-        <meta name="description" content="Visite Vilatur é uma página com os produtos, serviços e informações relevantes do bairro mais bohemio de Saquarema. " />
-        <meta name="keywords" content="Vilatur, Saquarema, Região dos Lagos, Itaúna, Turismo, Produtos, Serviços" />
+        <meta name="description" content="Visite Vilatur é uma página com os produtos, serviços e informações relevantes do bairro mais bohêmio de Saquarema, visite Vilatur, Saquarema, RJ, site com os principais produtos e serviços de Vilatur, Saquarema, RJ." />
+        <meta name="keywords" content="Vilatur, Saquarema, Região dos Lagos, Itaúna, Turismo, Produtos, Serviços, vilatur, vila-tur, vila tur" />
         <Meta />
         <Links />
       </head>
