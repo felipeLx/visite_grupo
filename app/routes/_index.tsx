@@ -1,10 +1,14 @@
-import { type V2_MetaFunction, type LoaderArgs, json} from "@remix-run/node";
-// import { Link } from "@remix-run/react";
+import { type LoaderArgs, json} from "@remix-run/node";
 import { prisma } from '~/utils/db.server';
 import * as Popover from '@radix-ui/react-popover';
 import { useLoaderData, useSearchParams, Form, Link, useSubmit, Outlet  } from "@remix-run/react";
 import { getServiceImgSrc, getUserImgSrc } from "~/utils/misc";
 import { Sidebar } from "~/components/sidebar";
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { Box } from "@chakra-ui/react";
+import { ImagesVila } from "~/components/images";
 import { BsWhatsapp, BsSearch } from 'react-icons/bs'; 
 import { FaInternetExplorer } from 'react-icons/fa'; 
 import { SiGooglemaps } from 'react-icons/si'; 
@@ -15,6 +19,19 @@ import { ButtonLink } from '~/utils/forms'
 import { getUserId } from "~/utils/session.server";
 import { getUserById } from "~/models/user.server";
 import { getNoteListQuery } from "~/models/note.server";
+
+
+type ImgData = {
+  url: string;
+}
+
+const imagesVila: ImgData[] = [
+  {url: "https://thumbs2.imgbox.com/7d/fb/eVSE6rba_t.jpg"},{url: "https://thumbs2.imgbox.com/0e/34/L6r1z9r2_t.jpg"}, 
+  {url: "https://thumbs2.imgbox.com/6a/85/dIaimQ7O_t.jpg"},
+  {url: "https://thumbs2.imgbox.com/fe/40/Eb4TO17z_t.jpg"},
+   {url: "https://thumbs2.imgbox.com/fe/ee/o5nfMbt1_t.jpg"},
+   {url: "https://thumbs2.imgbox.com/db/1e/8YZ68G2r_t.jpg"}
+]
 
 export const loader = async ({ request }: LoaderArgs) => {
   let notes = await prisma.note.findMany();
@@ -41,23 +58,23 @@ export default function Index() {
   
   return (
     <>
-      <header>
-        <nav className="">
-          <div className="flex justify-around items-center py-4 bg-indigo-950">
+      <header className="relative bg-indigo-950">
+        <nav className="flex">
+          <div className="flex flex-row justify-between w-full py-4">
             {data.user ? (
               <UserDropdown />
             ) : (
-              <ButtonLink to="/login" size="sm" variant="primary" className="m-2">
+              <ButtonLink to="/join" size="sm" variant="primary" className="m-2">
                 Entrar
               </ButtonLink>
             )}
             <Form method="get" className="text-white flex flex-col justify-center itens-center">
               <div className="flex">
-                <h3 className="text-3xl text-white lg:text-3xl sm:text-md"><BsSearch /></h3>
+                <h3 className="text-3xl text-white lg:text-2xl sm:text-md"><BsSearch /></h3>
                 <input
                   type="search"
                   name="keywords"
-                  className="text-black text-base rounded-xl px-2 py-2"
+                  className="text-black text-base py-1 rounded-xl"
                   defaultValue={params.get("keywords") || ''}
                 />
               </div>
@@ -65,40 +82,41 @@ export default function Index() {
           </div>
         </nav>
       </header>
-      <main>
-        <div className="flex flex-col sm:pb-16 sm:pt-8">
-          <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
-              <div className="absolute inset-0">
-                <img
-                  className="h-full w-full object-cover"
-                  src="/img/praia-vilatur.jpg"
-                  alt="Praia de Vilatur"
-                />
-                <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
-              </div>
-              <div className="relative px-4 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-24 lg:px-8 lg:pb-20 lg:pt-32">
-                <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                  <span className="block uppercase text-yellow-500 drop-shadow-md">
-                    VISITE VILATUR
-                  </span>
-                </h1>
-                <p className="mx-auto mt-6 max-w-lg text-center text-xl text-black sm:max-w-3xl">
-                  As diversas opções de serviços e produtos de Vilatur.
-                </p>
+      <section id="bunner" className="relative flex flex-col mt-2 pt-2 justify-center">
+        <div className="sm:pb-2 sm:pt-8 flex-grow">
+          <div className="mx-auto mb-4 max-w-7xl sm:px-6">
+          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
+            <div className="absolute inset-0">
+              <img
+                className="h-full w-full object-cover"
+                src="/img/praia-vilatur.jpg"
+                alt="Praia de Vilatur"
+              />
+              <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
+            </div>
+            <div className="relative px-4 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-24 lg:px-8 lg:pb-20 lg:pt-32">
+              <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
+                <span className="block uppercase text-yellow-500 drop-shadow-md">
+                  VISITE VILATUR
+                </span>
+              </h1>
+              <p className="mx-auto mt-6 max-w-lg text-center text-xl text-black sm:max-w-3xl">
+                As diversas opções de serviços e produtos de Vilatur.
+              </p>
               </div>
             </div>
           </div>
-
-            <nav className="flex rounded-lg justify-center items-center">
-              <Sidebar />
-            </nav>
-          <section>
-            <PopoverIndex />
-          </section>
         </div>
+      </section>
+      <main>
+        <section id="importants" className="relative flex flex-row mt-2 pt-2 justify-center">
+          <Sidebar />
+        </section>
+        <section id="services" className="flex-1">
+          <PopoverIndex />
+          <Outlet />
+        </section>
       </main>
-      <Outlet />
     </>
   );
 }
@@ -115,23 +133,23 @@ function PopoverIndex() {
   }, [data]);
   
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-center space-x-4 space-y-4">
+    <div className="mt-2 justify-center p-2">
+      <div className="w-full flex flex-wrap right-0 justify-around space-x-2 space-y-2 items-center lg:justify-between sm:justify-center md:justify-center">
           {services.map((service: any) => (
-            <div key={service.id} className="flex">
+            <div key={service.id} className="">
               <Popover.Root>
                 <Popover.Trigger asChild>
                   <div
-                    className="flex w-96 justify-center items-center cursor-pointer rounded-sm shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] outline-none focus:shadow-[0_0_0_2px_white]"
+                    className="w-80 flex flex-col justify-center items-center text-center cursor-pointer rounded-sm shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] outline-none focus:shadow-[0_0_0_2px_white]"
                   >
                     <img
-                      className="block h-[150px] w-[150px] rounded-sm  object-cover"
+                      className="rounded-sm h-48 w-48 object-cover object-center"
                       src={getServiceImgSrc(service.imageId)}
                       alt={service.title}
                     />
                     <div className="flex flex-col px-2">
                       <h3 className="font-bold pl-2">{service.title}</h3>
-                      <p className="p-2 font-light flex">{service.keywords}</p>
+                      <p className="p-2 font-light flex-wrap">{service.keywords}</p>
                     </div>
                   </div>
                 </Popover.Trigger>

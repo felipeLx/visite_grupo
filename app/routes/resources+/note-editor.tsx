@@ -3,20 +3,18 @@ import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import { useFetcher } from '@remix-run/react'
 import { z } from 'zod'
-import { requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { ErrorList, Field, TextareaField } from '~/components/forms'
 import { redirectWithToast } from '~/utils/flash-session.server'
 import { CheckboxField, Button } from '~/utils/forms'
 import { getUserId } from '~/utils/session.server'
-import { getUserById } from '~/models/user.server'
 
 export const NoteEditorSchema = z.object({
 	id: z.string().optional(),
 	title: z.string().min(3, 'Coloque um título maior'),
 	content: z.string().min(10, 'Faça uma descrição maior.'),
 	site: z.string().url('Precisa ser uma url válida: https://'),
-	phone: z.string().min(11, 'Coloque o telefone com DDD, ex: 22999378572'),
+	phone: z.string().min(11, 'Coloque o telefone com DDD, ex: 22999378572').max(11).regex(/[0-9]+/),
 	latitud: z.string().startsWith('-', 'Latitude para o Brasil começa com -'),
 	longitud: z.string().startsWith('-', 'Longitude para o Brasil começa com -'),
 	open: z.string().optional(),
@@ -59,7 +57,7 @@ export async function action({ request }: DataFunctionArgs) {
 	}
 
 	let transformedDelivery = delivery === 'on' ? 'Sim' : 'Não';
-	let transformedPhone = phone.replace(/[0-9]+/g,'')
+	let transformedPhone = phone.replace(/[a-zA-Z]/,'')
 	let transformedKeywords = keywords.replace(/[^a-zA-Zãõêâôéáíóúç]/,', ')
 	console.log(transformedKeywords)
 	

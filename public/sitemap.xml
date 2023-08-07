@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>https://vilatur.fly.dev</loc>
+	</url>
+	<url>
+		<loc>https://vilatur.fly.dev/join</loc>
+        <loc>https://vilatur.fly.dev/login</loc>
+    <lastmod>202-08-05T20:58:44.110Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.1</priority>
+	</url>
+</urlset>

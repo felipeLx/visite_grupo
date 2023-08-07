@@ -65,7 +65,7 @@ export default function App() {
 	//const user = useOptionalUser()
 
 	return (
-    <html lang="en" className="h-full">
+    <html lang="pt">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -77,51 +77,39 @@ export default function App() {
         <meta property="og:url" content="https://vilatur.fly.dev/" />
         <meta name="description" content="Visite Vilatur é uma página com os produtos, serviços e informações relevantes do bairro mais bohêmio de Saquarema, visite Vilatur, Saquarema, RJ, site com os principais produtos e serviços de Vilatur, Saquarema, RJ." />
         <meta name="keywords" content="Vilatur, Saquarema, Região dos Lagos, Itaúna, Turismo, Produtos, Serviços, vilatur, vila-tur, vila tur" />
+        <meta name="google-site-verification" content="du8u1BrbvAvIp2X24SzlnFxqj9Hxk8E0CM7ystHk__o" />
         <Meta />
         <Links />
       </head>
-      <body className="h-full items-center">
-	  {process.env.NODE_ENV === "development" || !gaTrackingId ? null : (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaTrackingId}`}
-            />
-            <script
-              async
-              id="gtag-init"
-              dangerouslySetInnerHTML={{
-                __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${gaTrackingId}', {
-                  page_path: window.location.pathname,
-                });
-              `,
-              }}
-            />
-            {/*<script async src="https://www.googletagmanager.com/gtag/js?id=AW-11175127343"></script>
-            <script 
-              async
-              id="gads-init"
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer = window.dataLayer || [];
+      <body>
+	    {process.env.NODE_ENV === "development" || !gaTrackingId ? null : (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaTrackingId}`}
+          />
+          <script
+            async
+            id="gtag-init"
+            dangerouslySetInnerHTML={{
+              __html: `
+              window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'AW-11175127343');`
-              }} />
-            <script async id="gads-event" dangerouslySetInnerHTML={{
-              __html: `gtag('event', 'conversion', {'send_to': 'AW-11175127343/-pHcCNmV554YEK_S29Ap'});`}}>
-			</script>*/}
-          </>
-        )}
+              gtag('config', '${gaTrackingId}', {
+                page_path: window.location.pathname,
+              });
+            `,
+            }}
+          />
+        </>
+      )}
         
-        <Outlet />
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-        <LiveReload nonce={nonce} />
-      </body>
-    </html>
+      <Outlet />
+      <ScrollRestoration nonce={nonce} />
+      <Scripts nonce={nonce} />
+      <LiveReload nonce={nonce} />
+    </body>
+  </html>
   );
 }
